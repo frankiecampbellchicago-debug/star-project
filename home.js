@@ -9,7 +9,6 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   const c = document.getElementById("comet");
   const ctx = c.getContext("2d");
   const title = hero.querySelector("h1");
-  const intro = hero.querySelector(".hero-intro");
   const hint = hero.querySelector(".hero-hint");
   let w, h, dpr;
   const sparks = [];
@@ -142,7 +141,6 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   function tick(time) {
     const p = progress();
     SKY.shine = easeInOut(clamp(p / 0.3));
-    intro.style.opacity = 1 - clamp(p / 0.12);
     hint.style.opacity = 1 - clamp(p / 0.04);
     hero.classList.toggle("done", p > 0.8);
     draw(time, p);
