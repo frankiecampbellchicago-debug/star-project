@@ -22,83 +22,103 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     dust.length = 0;
     path();
-    for (let i = 0; i < 70; i++) dust.push({ u: Math.random(), off: (Math.random() - 0.5) * 22, r: Math.random() * 1.1 + 0.3, ph: Math.random() * 6.3 });
+    for (let i = 0; i < 90; i++) dust.push({ u: Math.random(), off: (Math.random() - 0.5) * 26, r: Math.random() * 1.1 + 0.3, ph: Math.random() * 6.3 });
   }
 
-  // the comet's path: in from off-screen right, gently arcing down to the left
-  // it runs just under the title so the name sits on top of the trail
+  // the comet's path: swoops in from the top right and levels out just under
+  // the title, so the name ends up sitting on top of the trail
   let P0, P1, P2;
   function path() {
     const r = title.getBoundingClientRect(), sr = stage.getBoundingClientRect();
-    const y = (r.bottom - sr.top + 22) / h;
-    P0 = [1.12, y - 0.06]; P1 = [0.6, y - 0.01]; P2 = [0.08, y];
+    const y = (r.bottom - sr.top + 26) / h;
+    P0 = [1.08, y - 0.24]; P1 = [0.56, y + 0.025]; P2 = [0.07, y];
   }
   function pt(u) {
     const a = (1 - u) ** 2, b = 2 * u * (1 - u), d = u * u;
     return [(a * P0[0] + b * P1[0] + d * P2[0]) * w, (a * P0[1] + b * P1[1] + d * P2[1]) * h];
   }
 
-  const TRAIL = 0.62;
+  const TRAIL = 0.6;
   let lastHead = null;
+
+  // one smooth tapered ribbon from the tail (thin, faded) to the head (wide, bright)
+  function ribbon(tail, t, maxW, stops, blur, blurColor) {
+    const N = 90, pts = [];
+    for (let i = 0; i <= N; i++) pts.push(pt(tail + ((t - tail) * i) / N));
+    const left = [], right = [];
+    for (let i = 0; i <= N; i++) {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(N, i + 1)];
+      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len;
+      const half = (maxW / 2) * (i / N) ** 1.4;
+      left.push([pts[i][0] + nx * half, pts[i][1] + ny * half]);
+      right.push([pts[i][0] - nx * half, pts[i][1] - ny * half]);
+    }
+    const g = ctx.createLinearGradient(pts[0][0], pts[0][1], pts[N][0], pts[N][1]);
+    stops.forEach(([o, col]) => g.addColorStop(o, col));
+    ctx.save();
+    ctx.fillStyle = g;
+    ctx.shadowBlur = blur; ctx.shadowColor = blurColor;
+    ctx.beginPath();
+    ctx.moveTo(left[0][0], left[0][1]);
+    left.forEach((q) => ctx.lineTo(q[0], q[1]));
+    ctx.arc(pts[N][0], pts[N][1], maxW / 2, 0, Math.PI * 2);
+    for (let i = N; i >= 0; i--) ctx.lineTo(right[i][0], right[i][1]);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
 
   function draw(time, p) {
     ctx.clearRect(0, 0, w, h);
     const t = easeInOut(clamp((p - 0.26) / 0.5));
-    if (t <= 0) { title.style.clipPath = "inset(0 0 0 100%)"; lastHead = null; return; }
+    if (t <= 0) { title.style.setProperty("--x", w + 200 + "px"); lastHead = null; return; }
 
     const head = pt(t);
     const tail = Math.max(0, t - TRAIL);
-    const N = 140;
-    ctx.lineCap = "round";
-    for (let pass = 0; pass < 2; pass++) {
-      let prev = pt(tail);
-      for (let i = 1; i <= N; i++) {
-        const u = tail + ((t - tail) * i) / N;
-        const q = pt(u);
-        const k = i / N; // 0 at the tail end, 1 at the head
-        const width = 0.4 + k ** 1.6 * 5.5;
-        const alpha = k ** 1.3 * 0.9;
-        if (pass === 0) {
-          ctx.strokeStyle = `rgba(207,174,114,${alpha * 0.1})`;
-          ctx.lineWidth = width * 5;
-        } else {
-          const g = Math.round(174 + 65 * k), b = Math.round(114 + 116 * k);
-          ctx.strokeStyle = `rgba(${207 + Math.round(37 * k)},${g},${b},${alpha})`;
-          ctx.lineWidth = width;
-        }
-        ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
-        prev = q;
-      }
-    }
 
-    // sparkles hanging in the trail
+    // soft outer glow, then the bright core
+    ribbon(tail, t, 22, [[0, "rgba(207,174,114,0)"], [0.55, "rgba(207,174,114,0.06)"], [1, "rgba(232,212,170,0.28)"]], 28, "rgba(207,174,114,0.5)");
+    ribbon(tail, t, 5, [[0, "rgba(207,174,114,0)"], [0.45, "rgba(222,198,152,0.35)"], [0.85, "rgba(246,236,214,0.85)"], [1, "rgba(255,252,245,1)"]], 12, "rgba(255,240,210,0.6)");
+
+    // sparkles hanging in the trail, thicker near the head
     for (const d of dust) {
-      const u = tail + (t - tail) * d.u;
-      const q = pt(u);
-      const a = d.u * (0.4 + 0.6 * Math.sin(time / 300 + d.ph) ** 2);
-      ctx.fillStyle = `rgba(244,239,230,${a * 0.8})`;
-      ctx.beginPath(); ctx.arc(q[0], q[1] + d.off * d.u, d.r, 0, Math.PI * 2); ctx.fill();
+      const q = pt(tail + (t - tail) * d.u);
+      const a = d.u ** 1.5 * (0.35 + 0.65 * Math.sin(time / 380 + d.ph) ** 2);
+      ctx.fillStyle = `rgba(250,240,220,${a})`;
+      ctx.beginPath(); ctx.arc(q[0], q[1] + d.off * (1 - d.u * 0.6), d.r, 0, Math.PI * 2); ctx.fill();
     }
 
-    // the head
-    const flick = 1 + Math.sin(time / 90) * 0.06;
-    const glow = ctx.createRadialGradient(head[0], head[1], 0, head[0], head[1], 34 * flick);
-    glow.addColorStop(0, "rgba(255,250,240,0.95)");
-    glow.addColorStop(0.18, "rgba(244,228,196,0.5)");
-    glow.addColorStop(1, "rgba(207,174,114,0)");
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(head[0], head[1], 34 * flick, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#fffaf0";
-    ctx.beginPath(); ctx.arc(head[0], head[1], 3.6, 0, Math.PI * 2); ctx.fill();
+    // the head: halo, light spikes and a white-hot core
+    const flick = 1 + Math.sin(time / 110) * 0.05 + Math.sin(time / 37) * 0.02;
+    const R = 46 * flick;
+    const halo = ctx.createRadialGradient(head[0], head[1], 0, head[0], head[1], R);
+    halo.addColorStop(0, "rgba(255,252,245,0.9)");
+    halo.addColorStop(0.12, "rgba(250,234,200,0.45)");
+    halo.addColorStop(0.4, "rgba(207,174,114,0.12)");
+    halo.addColorStop(1, "rgba(207,174,114,0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(head[0], head[1], R, 0, Math.PI * 2); ctx.fill();
+    const spike = (dx, dy, len) => {
+      const g = ctx.createLinearGradient(head[0], head[1], head[0] + dx * len, head[1] + dy * len);
+      g.addColorStop(0, "rgba(255,250,240,0.8)");
+      g.addColorStop(1, "rgba(255,250,240,0)");
+      ctx.strokeStyle = g; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(head[0], head[1]); ctx.lineTo(head[0] + dx * len, head[1] + dy * len); ctx.stroke();
+    };
+    const sl = 70 * flick, sv = 28 * flick;
+    spike(1, 0, sl); spike(-1, 0, sl); spike(0, 1, sv); spike(0, -1, sv);
+    ctx.fillStyle = "#fffdf8";
+    ctx.beginPath(); ctx.arc(head[0], head[1], 3.2, 0, Math.PI * 2); ctx.fill();
 
     // sparks fly off the head while it moves
     if (lastHead && !REDUCED) {
       const dx = head[0] - lastHead[0], dy = head[1] - lastHead[1];
-      const n = Math.min(4, Math.hypot(dx, dy) / 3);
+      const n = Math.min(3, Math.hypot(dx, dy) / 4);
       for (let i = 0; i < n; i++) {
-        const ang = Math.atan2(-dy, -dx) + (Math.random() - 0.5) * 1.4;
-        const sp = 0.5 + Math.random() * 1.8;
-        sparks.push({ x: head[0], y: head[1], vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + 0.15, life: 1, decay: 0.012 + Math.random() * 0.02 });
+        const ang = Math.atan2(-dy, -dx) + (Math.random() - 0.5) * 1.2;
+        const sp = 0.4 + Math.random() * 1.4;
+        sparks.push({ x: head[0], y: head[1], vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + 0.1, life: 1, decay: 0.01 + Math.random() * 0.018 });
       }
     }
     lastHead = head;
@@ -106,12 +126,12 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       const s = sparks[i];
       s.x += s.vx; s.y += s.vy; s.vx *= 0.97; s.vy *= 0.97; s.life -= s.decay;
       if (s.life <= 0) { sparks.splice(i, 1); continue; }
-      ctx.fillStyle = `rgba(244,228,196,${s.life})`;
-      ctx.beginPath(); ctx.arc(s.x, s.y, 1.3 * s.life + 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = `rgba(246,232,204,${s.life * 0.9})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, 1.1 * s.life + 0.2, 0, Math.PI * 2); ctx.fill();
     }
 
-    // the name appears in the comet's wake
-    title.style.clipPath = t >= 0.999 ? "none" : `inset(0 0 0 ${Math.max(0, head[0] + 18)}px)`;
+    // the name fades in, letter by letter, in the comet's wake
+    title.style.setProperty("--x", (t >= 0.999 ? -300 : head[0] + 8) + "px");
   }
 
   function progress() {

@@ -10,7 +10,7 @@ const SKY = { shine: 1 };
   const c = document.getElementById("sky");
   if (!c) return;
   const ctx = c.getContext("2d");
-  let w, h, dpr, stars = [];
+  let w, h, dpr, stars = [], meteor = null, nextMeteor = 3;
 
   function build() {
     dpr = Math.min(devicePixelRatio || 1, 2);
@@ -56,6 +56,26 @@ const SKY = { shine: 1 };
         ctx.moveTo(st.x - len, y); ctx.lineTo(st.x + len, y);
         ctx.moveTo(st.x, y - len); ctx.lineTo(st.x, y + len);
         ctx.stroke();
+      }
+    }
+    // now and then a tiny shooting star crosses the lit sky
+    if (!REDUCED && s > 0.85) {
+      if (!meteor && t > nextMeteor) {
+        meteor = { x: w * (0.3 + Math.random() * 0.7), y: h * Math.random() * 0.4, a: Math.PI * (0.78 + Math.random() * 0.12), born: t, len: 90 + Math.random() * 80 };
+      }
+      if (meteor) {
+        const k = (t - meteor.born) / 0.9;
+        if (k >= 1) { meteor = null; nextMeteor = t + 4 + Math.random() * 6; }
+        else {
+          const dist = k * 520, fade = Math.sin(k * Math.PI);
+          const hx = meteor.x + Math.cos(meteor.a) * dist, hy = meteor.y + Math.sin(meteor.a) * dist;
+          const tx = hx - Math.cos(meteor.a) * meteor.len, ty = hy - Math.sin(meteor.a) * meteor.len;
+          const g = ctx.createLinearGradient(hx, hy, tx, ty);
+          g.addColorStop(0, `rgba(255,250,240,${0.85 * fade})`);
+          g.addColorStop(1, "rgba(255,250,240,0)");
+          ctx.strokeStyle = g; ctx.lineWidth = 1.2; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(tx, ty); ctx.stroke();
+        }
       }
     }
     if (!REDUCED) requestAnimationFrame(draw);
@@ -114,52 +134,62 @@ const SKY = { shine: 1 };
     ctx.clearRect(0, 0, w, h);
     if (m.on) {
       const px = head.x, py = head.y;
-      head.x += (m.x - head.x) * 0.38;
-      head.y += (m.y - head.y) * 0.38;
+      head.x += (m.x - head.x) * 0.42;
+      head.y += (m.y - head.y) * 0.42;
       const dx = head.x - px, dy = head.y - py;
       const speed = Math.hypot(dx, dy);
-      trail.unshift({ x: head.x, y: head.y });
-      if (trail.length > 16) trail.pop();
-      // shed sparks off the back of the comet as it moves
-      const n = Math.min(3, speed / 7);
-      for (let i = 0; i < n; i++) {
-        const back = Math.atan2(-dy, -dx) + (Math.random() - 0.5) * 1.1;
-        spark(head.x, head.y, back, 0.4 + Math.random() * 1.2);
+      if (speed > 0.4) trail.unshift({ x: head.x, y: head.y });
+      else if (trail.length) trail.pop(); // tail pulls in when the mouse rests
+      if (trail.length > 9) trail.pop();
+      if (speed > 2 && Math.random() < Math.min(0.9, speed / 14)) {
+        spark(head.x, head.y, Math.atan2(-dy, -dx) + (Math.random() - 0.5) * 1.2, 0.3 + Math.random() * 0.9);
       }
     } else trail.length = 0;
 
-    const ink = dark ? "23,20,28" : "244,239,230";
+    const ink = dark ? "23,20,28" : "255,250,240";
     const gold = dark ? "126,95,42" : "207,174,114";
 
     for (let i = sparks.length - 1; i >= 0; i--) {
       const p = sparks[i];
       p.x += p.vx; p.y += p.vy; p.vx *= 0.94; p.vy *= 0.94; p.life -= p.decay;
       if (p.life <= 0) { sparks.splice(i, 1); continue; }
-      ctx.fillStyle = `rgba(${p.gold ? gold : ink},${p.life})`;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life + 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = `rgba(${p.gold ? gold : ink},${p.life * 0.9})`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life * 0.8 + 0.2, 0, Math.PI * 2); ctx.fill();
     }
 
     if (m.on) {
-      for (let i = 1; i < trail.length; i++) {
-        const k = 1 - i / trail.length;
-        ctx.strokeStyle = `rgba(${i < 4 ? ink : gold},${k * 0.8})`;
-        ctx.lineWidth = 3.2 * k;
-        ctx.lineCap = "round";
+      // tapered tail as one smooth shape
+      if (trail.length > 2) {
+        const L = [], R = [];
+        const n = trail.length;
+        for (let i = 0; i < n; i++) {
+          const a = trail[Math.max(0, i - 1)], b = trail[Math.min(n - 1, i + 1)];
+          const ddx = b.x - a.x, ddy = b.y - a.y, len = Math.hypot(ddx, ddy) || 1;
+          const half = 2.4 * (1 - i / (n - 1));
+          L.push([trail[i].x - (ddy / len) * half, trail[i].y + (ddx / len) * half]);
+          R.push([trail[i].x + (ddy / len) * half, trail[i].y - (ddx / len) * half]);
+        }
+        const g = ctx.createLinearGradient(trail[0].x, trail[0].y, trail[n - 1].x, trail[n - 1].y);
+        g.addColorStop(0, `rgba(${ink},0.9)`);
+        g.addColorStop(0.4, `rgba(${gold},0.55)`);
+        g.addColorStop(1, `rgba(${gold},0)`);
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
-        ctx.lineTo(trail[i].x, trail[i].y);
-        ctx.stroke();
+        ctx.moveTo(L[0][0], L[0][1]);
+        L.forEach((q) => ctx.lineTo(q[0], q[1]));
+        for (let i = n - 1; i >= 0; i--) ctx.lineTo(R[i][0], R[i][1]);
+        ctx.closePath(); ctx.fill();
       }
-      const g = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 10);
-      g.addColorStop(0, `rgba(${ink},0.55)`);
-      g.addColorStop(1, `rgba(${ink},0)`);
+      const g = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 11);
+      g.addColorStop(0, `rgba(${dark ? gold : ink},0.5)`);
+      g.addColorStop(1, `rgba(${dark ? gold : ink},0)`);
       ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(head.x, head.y, 10, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(head.x, head.y, 11, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = `rgb(${ink})`;
-      ctx.beginPath(); ctx.arc(head.x, head.y, 2.6, 0, Math.PI * 2); ctx.fill();
-      ring += ((hover ? 16 : 0) - ring) * 0.2;
+      ctx.beginPath(); ctx.arc(head.x, head.y, 2.4, 0, Math.PI * 2); ctx.fill();
+      ring += ((hover ? 15 : 0) - ring) * 0.2;
       if (ring > 0.5) {
-        ctx.strokeStyle = `rgba(${gold},${ring / 16})`;
+        ctx.strokeStyle = `rgba(${gold},${ring / 15})`;
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.arc(head.x, head.y, ring, 0, Math.PI * 2); ctx.stroke();
       }

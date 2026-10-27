@@ -105,11 +105,17 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
   text-align: center; pointer-events: none;
 }
 .hero-title h1 {
-  font-family: var(--sans); font-weight: 300; font-size: clamp(30px, 7.4vw, 104px);
-  letter-spacing: 0.26em; text-indent: 0.26em; text-transform: uppercase; line-height: 1; color: var(--star);
-  clip-path: inset(0 0 0 100%);
-  text-shadow: 0 0 24px rgba(244, 239, 230, 0.18);
+  font-family: var(--sans); font-weight: 200; font-size: clamp(30px, 7.6vw, 112px);
+  letter-spacing: 0.28em; text-indent: 0.28em; text-transform: uppercase; line-height: 1.05;
+  color: var(--star);
+  background: linear-gradient(180deg, #fffdf7 15%, #f1e4c8 55%, #cfae72 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  --x: 120vw;
+  -webkit-mask-image: linear-gradient(90deg, transparent var(--x), #000 calc(var(--x) + 160px));
+  mask-image: linear-gradient(90deg, transparent var(--x), #000 calc(var(--x) + 160px));
 }
+.hero-tag { display: block; margin-bottom: 26px; font-family: var(--serif); font-style: italic; font-size: clamp(17px, 1.8vw, 22px); color: var(--gold); letter-spacing: 0.02em; opacity: 0; transform: translateY(8px); transition: opacity 1s var(--ease) 0.2s, transform 1s var(--ease) 0.2s; }
+.hero.done .hero-tag { opacity: 1; transform: none; }
 .hero-sub { margin-top: 26px; opacity: 0; transform: translateY(12px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); pointer-events: none; }
 .hero-sub p { color: var(--muted); margin: 0 0 26px; font-size: 15px; letter-spacing: 0.04em; }
 .hero.done .hero-sub { opacity: 1; transform: none; pointer-events: auto; }
@@ -392,7 +398,7 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .hero.static { height: 100vh; height: 100svh; }
-.hero.static h1 { clip-path: none !important; }
+.hero.static h1 { -webkit-mask-image: none; mask-image: none; }
 
 /* page fixes */
 .cover .btn.ghost { color: var(--star); border-color: var(--line-dark); }
@@ -404,12 +410,13 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
 .feature .photo { aspect-ratio: auto; height: 100%; }
 .feature .photo img { object-fit: cover; }
 .feature-info { align-self: end; padding-bottom: 6px; }
-.hero-sub { margin-top: 64px; }
+.hero-sub { margin-top: 56px; }
 @media (max-width: 860px) {
   .feature .photo { height: auto; aspect-ratio: 1; max-height: 230px; }
   .feature .photo img { object-fit: contain; }
 }
 @media (max-width: 600px) {
   .hero-title h1 { font-size: 9vw; letter-spacing: 0.14em; text-indent: 0.14em; }
-  .hero-sub { margin-top: 48px; padding: 0 16px; }
+  .hero-sub { margin-top: 64px; padding: 0 16px; }
+  .hero-title h1 { font-weight: 300; }
 }
