@@ -13,6 +13,7 @@
   --line-paper: rgba(23, 20, 28, 0.14);
   --serif: "Cormorant Garamond", Georgia, serif;
   --sans: "Inter", system-ui, sans-serif;
+  --script: "Pinyon Script", "Snell Roundhand", cursive;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -105,8 +106,8 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
   text-align: center; pointer-events: none;
 }
 .hero-title h1 {
-  font-family: var(--sans); font-weight: 200; font-size: clamp(30px, 7.6vw, 112px);
-  letter-spacing: 0.28em; text-indent: 0.28em; text-transform: uppercase; line-height: 1.05;
+  font-family: var(--script); font-weight: 400; font-size: clamp(64px, 12vw, 190px);
+  letter-spacing: 0; text-transform: none; line-height: 1.25; padding: 0 0.25em;
   color: var(--star);
   background: linear-gradient(180deg, #fffdf7 15%, #f1e4c8 55%, #cfae72 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -416,7 +417,13 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
   .feature .photo img { object-fit: contain; }
 }
 @media (max-width: 600px) {
-  .hero-title h1 { font-size: 9vw; letter-spacing: 0.14em; text-indent: 0.14em; }
+  .hero-title h1 { font-size: 17vw; }
   .hero-sub { margin-top: 64px; padding: 0 16px; }
-  .hero-title h1 { font-weight: 300; }
 }
+
+/* brand name in the Star Project script */
+.brand span { font-family: var(--script); font-size: 27px; font-weight: 400; letter-spacing: 0; text-transform: none; line-height: 1; padding-top: 4px; }
+@media (max-width: 640px) { .brand span { letter-spacing: 0; font-size: 24px; } }
+.cover h3 { font-family: var(--script); font-weight: 400; font-size: 64px; letter-spacing: 0; text-indent: 0; text-transform: none; line-height: 1.2; }
+.page.cover .btn.ghost.small { color: var(--star); border-color: rgba(244, 239, 230, 0.35); }
+.page.cover .btn.ghost.small:hover { color: var(--gold); border-color: var(--gold); }
