@@ -282,7 +282,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
             ${buyRow(feat)}
           </div>
         </div>
-        ${foot("Star Project", `Page ${pages.length + 1}`)}
+        ${foot("Star Project", `Page ${pages.length}`)}
       </div>` });
     pages.push({ label, drop: i, html: `<div class="page paper">
         <div class="items-head"><h3>In this drop</h3><span class="drop-no">${d.products.length} pieces</span></div>
@@ -297,7 +297,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
             </div>
           </article>`).join("")}
         </div>
-        ${foot(`Drop ${d.no}`, `Page ${pages.length + 1}`)}
+        ${foot(`Drop ${d.no}`, `Page ${pages.length}`)}
       </div>` });
   });
   pages.push({ label: "Back cover", html: `<div class="page cover">
@@ -313,7 +313,9 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       ${foot("Star Project", "Vol. 01")}
     </div>` });
 
-  let single, sheets = [], cur = 0;
+  // the book opens straight onto Drop 01; the front cover stays turned back
+  const MIN = 1;
+  let single, sheets = [], cur = MIN;
 
   function build() {
     single = matchMedia("(max-width: 860px)").matches;
@@ -327,7 +329,9 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     sheets = [...book.children];
     sheets.forEach((s, i) => s.classList.toggle("flipped", i < cur));
     cur = Math.min(cur, maxCur());
-    update(false);
+    book.classList.add("instant");
+    update();
+    requestAnimationFrame(() => requestAnimationFrame(() => book.classList.remove("instant")));
   }
 
   const maxCur = () => (single ? sheets.length - 1 : sheets.length);
@@ -346,12 +350,12 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     });
     book.classList.toggle("at-start", !single && cur === 0);
     book.classList.toggle("at-end", !single && cur === n);
-    prevBtn.disabled = cur === 0;
+    prevBtn.disabled = cur <= MIN;
     nextBtn.disabled = cur === maxCur();
 
     const visible = single ? [pages[cur]] : [pages[cur * 2 - 1], pages[cur * 2]].filter(Boolean);
     const lab = visible.find((p) => p.drop !== undefined) || visible[0];
-    const pageNo = single ? `${cur + 1} / ${pages.length}` : `${cur + 1} / ${n + 1}`;
+    const pageNo = single ? `${cur} / ${pages.length - 1}` : `${cur} / ${n}`;
     status.innerHTML = `<strong>${lab.label}</strong><br>${pageNo}`;
     tabs.querySelectorAll(".drop-tab").forEach((t) => t.setAttribute("aria-current", String(t.dataset.drop === String(lab.drop ?? "cover"))));
   }
@@ -364,7 +368,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   }
 
   function go(target) {
-    target = clamp(target, 0, maxCur());
+    target = clamp(target, MIN, maxCur());
     if (target === cur) return;
     const dir = target > cur ? 1 : -1;
     const steps = Math.abs(target - cur);
@@ -378,12 +382,11 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     }
   }
 
-  tabs.innerHTML = `<button class="drop-tab" type="button" data-drop="cover">Cover</button>` +
+  tabs.innerHTML =
     DROPS.map((d, i) => `<button class="drop-tab" type="button" data-drop="${i}">Drop ${d.no} · ${d.name}</button>`).join("");
   tabs.addEventListener("click", (e) => {
     const t = e.target.closest(".drop-tab");
     if (!t) return;
-    if (t.dataset.drop === "cover") return go(0);
     const i = +t.dataset.drop;
     go(single ? 1 + i * 2 : i + 1);
   });
@@ -428,7 +431,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     const s = matchMedia("(max-width: 860px)").matches;
     if (s === wasSingle) return;
     // keep roughly the same place when switching between one and two pages
-    if (wasSingle !== null) cur = s ? Math.max(0, cur * 2 - 1) : Math.ceil(cur / 2);
+    if (wasSingle !== null) cur = s ? Math.max(MIN, cur * 2 - 1) : Math.max(MIN, Math.ceil(cur / 2));
     wasSingle = s;
     build();
   };
