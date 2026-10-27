@@ -295,7 +295,6 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
         ${constellation(d.id)}
         <span class="drop-no">Drop ${d.no} · ${d.date}</span>
         <h3 class="drop-name">${d.name}</h3>
-        <p class="drop-story">${d.story}</p>
         <div class="drop-stats"><div><strong>${d.products.length}</strong><span>Pieces</span></div><div><strong>${RUN_SIZE[d.id] || "—"}</strong><span>Made of each</span></div><div><strong>${d.date.split(" ")[1]}</strong><span>${d.date.split(" ")[0]}</span></div></div>
         <div class="feature">
           ${cutPhoto(feat, 800)}
