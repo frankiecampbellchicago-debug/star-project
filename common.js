@@ -198,7 +198,7 @@ const SKY = { shine: 1 };
     m.x = e.clientX; m.y = e.clientY; m.on = true;
     const el = e.target instanceof Element ? e.target : null;
     hover = !!el?.closest("a, button, select, input, label, [role=button]");
-    dark = !!el?.closest(".paper, .drawer, .panel, .toast") && !el?.closest(".cover, .night");
+    dark = !!el?.closest(".paper") && !el?.closest(".cover, .night");
   });
   document.addEventListener("pointerleave", () => { m.on = false; });
   addEventListener("pointerdown", (e) => {
@@ -311,7 +311,7 @@ const ICON = {
 };
 
 function photo(p, w = 400) {
-  return `<div class="photo"><img src="images/${p.img}-${w}.webp" alt="${p.name}" width="${w}" height="${w}" loading="lazy"></div>`;
+  return `<div class="photo cut"><img src="images/${p.img}-cut-${w}.webp" alt="${p.name}" width="${w}" height="${w}" loading="lazy"></div>`;
 }
 
 function lineHTML(it, idx) {

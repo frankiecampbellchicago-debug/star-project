@@ -501,3 +501,52 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
 .feature .photo.cut img { padding: 0; transform: scale(1.18); }
 .feature .photo.cut:hover img { transform: translateY(-6px) scale(1.22); }
 @media (max-width: 860px) { .feature { grid-template-columns: 1fr; } .feature .photo.cut img { transform: scale(1.05); } }
+
+/* ---------- dark bag drawer + checkout ---------- */
+.drawer, .panel {
+  background:
+    radial-gradient(90% 50% at 50% 0%, rgba(207, 174, 114, 0.06), transparent 70%),
+    linear-gradient(180deg, #13121a 0%, #0b0a10 60%, #08070c 100%);
+  color: var(--star);
+  border: 1px solid rgba(244, 239, 230, 0.08);
+}
+.drawer { border-width: 0 0 0 1px; }
+.drawer-head, .ship-bar, .drawer-foot, .line { border-color: var(--line-dark); }
+.ship-bar, .line .meta, .fine, .remove, .empty, .done-box p, .ship-opt small, .pay-box p, .field label { color: var(--muted); }
+.remove:hover { color: var(--star); }
+.ship-bar .track { background: var(--line-dark); }
+.ship-bar .fill { background: var(--gold); }
+.qty { border-color: rgba(244, 239, 230, 0.22); }
+.qty button { color: var(--star); }
+.qty button:hover { color: var(--gold); }
+.line .price, .sum-row { color: var(--star); }
+.line .photo.cut { background: radial-gradient(ellipse 60% 55% at 50% 52%, rgba(207, 174, 114, 0.2), transparent 72%); }
+.line .photo.cut::after { display: none; }
+.drawer .btn, .panel .btn { background: var(--gold); border-color: var(--gold); color: var(--space); }
+.drawer .btn:hover, .panel .btn:hover { background: transparent; color: var(--gold); }
+.drawer .btn.ghost, .panel .btn.ghost { background: transparent; color: var(--star); border-color: rgba(244, 239, 230, 0.28); }
+.drawer .btn.ghost:hover, .panel .btn.ghost:hover { color: var(--gold); border-color: var(--gold); }
+.sum-row.total { color: var(--gold); }
+.summary-totals { border-top: 1px solid var(--line-dark); padding-top: 16px; }
+
+.field input, .field select {
+  background: rgba(255, 255, 255, 0.03); color: var(--star); border-color: rgba(244, 239, 230, 0.16);
+}
+.field input:focus, .field select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(207, 174, 114, 0.15); }
+.field select option { background: #0b0a10; color: var(--star); }
+.field input[aria-invalid="true"] { border-color: #e08a7f; }
+.err { color: #e8a097; }
+.fieldset legend { color: var(--star); }
+.ship-opt { border-color: rgba(244, 239, 230, 0.16); }
+.ship-opt:hover { border-color: rgba(244, 239, 230, 0.32); }
+.ship-opt:has(input:checked) { border-color: var(--gold); background: rgba(207, 174, 114, 0.05); }
+.ship-opt input { accent-color: var(--gold); }
+.pay-box { background: rgba(255, 255, 255, 0.03); border-color: rgba(244, 239, 230, 0.16); }
+.pay-box .lock { color: var(--gold); }
+.scrim { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+
+.toast { background: #13121a; color: var(--star); border: 1px solid rgba(244, 239, 230, 0.12); border-left: 2px solid var(--gold); }
+.ship-opt input { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; margin: 0; border: 1px solid rgba(244, 239, 230, 0.4); border-radius: 50%; display: grid; place-items: center; flex: none; cursor: pointer; }
+.ship-opt input::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); transform: scale(0); transition: transform 0.2s var(--ease); }
+.ship-opt input:checked { border-color: var(--gold); }
+.ship-opt input:checked::after { transform: scale(1); }
