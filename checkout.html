@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout | Star Project</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#050508">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-solid="1">
+  <a class="skip" href="#main">Skip to checkout</a>
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Star Project home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 6.6 5.4 11.4 12 12-6.6.6-11.4 5.4-12 12-.6-6.6-5.4-11.4-12-12C6.6 11.4 11.4 6.6 12 0z" fill="#cfae72"/></svg>
+      <span>Star Project</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html#catalogue">Back to catalogue</a>
+      <button class="bag-btn" type="button" aria-label="Open your bag">Bag <span class="bag-count">0</span></button>
+    </nav>
+  </header>
+
+  <main class="checkout" id="main">
+    <div class="checkout-head">
+      <span class="label">Checkout</span>
+      <h1>Almost <span class="accent">yours</span></h1>
+      <div class="steps" aria-label="Checkout steps"><span class="on">Details</span><span>Delivery</span><span>Payment</span></div>
+    </div>
+
+    <div class="checkout-grid">
+      <form class="panel" id="checkout-form" novalidate>
+        <fieldset class="fieldset">
+          <legend>Contact</legend>
+          <div class="fields">
+            <div class="field full"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required><span class="err" data-err="email"></span></div>
+            <div class="field full"><label for="phone">Phone (optional)</label><input id="phone" name="phone" type="tel" autocomplete="tel"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend>Shipping address</legend>
+          <div class="fields">
+            <div class="field"><label for="first">First name</label><input id="first" name="first" autocomplete="given-name" required><span class="err" data-err="first"></span></div>
+            <div class="field"><label for="last">Last name</label><input id="last" name="last" autocomplete="family-name" required><span class="err" data-err="last"></span></div>
+            <div class="field full"><label for="address">Address</label><input id="address" name="address" autocomplete="address-line1" required><span class="err" data-err="address"></span></div>
+            <div class="field full"><label for="address2">Apartment, suite (optional)</label><input id="address2" name="address2" autocomplete="address-line2"></div>
+            <div class="field"><label for="city">City</label><input id="city" name="city" autocomplete="address-level2" required><span class="err" data-err="city"></span></div>
+            <div class="field"><label for="region">State / region</label><input id="region" name="region" autocomplete="address-level1" required><span class="err" data-err="region"></span></div>
+            <div class="field"><label for="zip">ZIP / postal code</label><input id="zip" name="zip" autocomplete="postal-code" required><span class="err" data-err="zip"></span></div>
+            <div class="field"><label for="country">Country</label>
+              <select id="country" name="country" autocomplete="country-name">
+                <option>United States</option><option>Canada</option><option>United Kingdom</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend>Delivery</legend>
+          <label class="ship-opt"><input type="radio" name="ship" value="standard" checked><span class="grow">Standard<small>5 to 7 business days</small></span><span data-std></span></label>
+          <label class="ship-opt"><input type="radio" name="ship" value="express"><span class="grow">Express<small>2 to 3 business days</small></span><span>$18</span></label>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend>Payment</legend>
+          <div class="pay-box">
+            <div class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>Secure payment</div>
+            <p>When the store goes live, pressing Pay opens a secure card payment page from our payment provider. Your card details never touch this site.</p>
+          </div>
+        </fieldset>
+
+        <button class="btn place" type="submit" id="pay-btn">Pay</button>
+        <p class="fine" id="pay-note" role="status"></p>
+      </form>
+
+      <aside class="panel summary" aria-labelledby="sum-title">
+        <h2 id="sum-title">Order summary</h2>
+        <div id="sum-lines"></div>
+        <div class="summary-totals">
+          <div class="sum-row"><span>Subtotal</span><span id="sum-sub"></span></div>
+          <div class="sum-row"><span>Shipping</span><span id="sum-ship"></span></div>
+          <div class="sum-row total"><span>Total</span><span id="sum-total"></span></div>
+          <p class="fine">Any sales tax is added on the payment page.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="products.js"></script>
+  <script src="common.js"></script>
+  <script src="checkout.js"></script>
+</body>
+</html>

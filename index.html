@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Star Project | Clothing released in drops</title>
+  <meta name="description" content="Star Project is a clothing label released in limited drops. Flip through the catalogue and shop the latest release.">
+  <meta name="theme-color" content="#050508">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#catalogue">Skip to the catalogue</a>
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Star Project home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 6.6 5.4 11.4 12 12-6.6.6-11.4 5.4-12 12-.6-6.6-5.4-11.4-12-12C6.6 11.4 11.4 6.6 12 0z" fill="#cfae72"/></svg>
+      <span>Star Project</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#catalogue">Catalogue</a>
+      <a class="hide-sm" href="#story">Story</a>
+      <a class="hide-sm" href="#signup-section">Next drop</a>
+      <button class="bag-btn" type="button" aria-label="Open your bag">Bag <span class="bag-count">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Star Project">
+      <div class="hero-stage">
+        <canvas id="comet" aria-hidden="true"></canvas>
+        <div class="hero-intro">
+          <span class="label">Catalogue, Volume One</span>
+        </div>
+        <div class="hero-title">
+          <h1>Star Project</h1>
+          <div class="hero-sub">
+            <p>Clothing released in drops. Each one a new chapter.</p>
+            <a class="btn" href="#catalogue">Open the catalogue</a>
+          </div>
+        </div>
+        <div class="hero-hint" aria-hidden="true">Scroll</div>
+      </div>
+    </section>
+
+    <section class="section catalogue" id="catalogue" aria-labelledby="cat-title">
+      <div class="wrap center reveal">
+        <span class="label">The catalogue</span>
+        <h2 id="cat-title">Every drop is a <span class="accent">chapter</span></h2>
+        <p class="lede">Turn the pages to move through each release. Pick a size and buy straight from the page.</p>
+      </div>
+      <div class="drop-tabs" id="drop-tabs" role="group" aria-label="Jump to a drop"></div>
+      <div class="book-scene">
+        <div class="book" id="book" aria-live="polite"></div>
+      </div>
+      <div class="book-controls">
+        <button class="flip-btn" id="prev" type="button" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M15 4l-8 8 8 8"/></svg></button>
+        <div class="page-status" id="page-status"></div>
+        <button class="flip-btn" id="next" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 4l8 8-8 8"/></svg></button>
+      </div>
+      <p class="book-help">Click a page corner, use the arrow keys, or swipe to turn.</p>
+    </section>
+
+    <section class="section paper" id="story" aria-labelledby="story-title">
+      <div class="wrap">
+        <div class="story-grid">
+          <div class="reveal">
+            <span class="label">Our story</span>
+            <h2 id="story-title">Made under one <span class="accent">sky</span></h2>
+          </div>
+          <div class="story-copy reveal">
+            <p>Star Project releases clothing in drops: small, considered collections that arrive a few times a year and don't come back once they sell out.</p>
+            <p>Every piece starts with heavy, honest fabric and a cut that is meant to be worn often. We would rather make fewer things well than chase every trend.</p>
+          </div>
+        </div>
+        <div class="pillars">
+          <div class="pillar reveal"><span class="n">01</span><h3>Limited drops</h3><p>Small runs, so what you wear stays rare.</p></div>
+          <div class="pillar reveal"><span class="n">02</span><h3>Built to last</h3><p>Heavyweight cotton and fleece that get better with wear.</p></div>
+          <div class="pillar reveal"><span class="n">03</span><h3>Worn together</h3><p>Each drop is designed as a set, so the pieces match.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Shopping with us">
+      <div class="perks">
+        <div class="perk"><strong>Free shipping</strong><span>On orders over $150</span></div>
+        <div class="perk"><strong>30-day returns</strong><span>Unworn, with tags on</span></div>
+        <div class="perk"><strong>Secure checkout</strong><span>Card payments, encrypted</span></div>
+      </div>
+    </section>
+
+    <section class="section center" id="signup-section" aria-labelledby="signup-title">
+      <div class="wrap reveal">
+        <span class="label">The next drop</span>
+        <h2 id="signup-title">Be first when the next star <span class="accent">falls</span></h2>
+        <p class="lede">Join the list for early access to new drops, a day before everyone else.</p>
+        <form class="signup" id="signup" novalidate>
+          <label class="sr-only" for="signup-email">Email address</label>
+          <input id="signup-email" type="email" required placeholder="Your email address" autocomplete="email">
+          <button class="btn" type="submit">Join the list</button>
+        </form>
+        <p class="form-note" id="signup-note" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="index.html" aria-label="Star Project home">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 6.6 5.4 11.4 12 12-6.6.6-11.4 5.4-12 12-.6-6.6-5.4-11.4-12-12C6.6 11.4 11.4 6.6 12 0z" fill="#cfae72"/></svg>
+          <span>Star Project</span>
+        </a>
+        <p>Clothing released in limited drops.</p>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="#catalogue">Catalogue</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="#signup-section">Next drop</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#story">Our story</a></li>
+          <li><a href="#catalogue">Shipping &amp; returns</a></li>
+          <li><a href="mailto:hello@starproject.example">Contact us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base"><span>&copy; <span id="year">2026</span> Star Project</span><span>All prices in USD</span></div>
+  </footer>
+
+  <script src="products.js"></script>
+  <script src="common.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>
