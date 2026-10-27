@@ -235,7 +235,6 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   const prevBtn = document.getElementById("prev");
   const nextBtn = document.getElementById("next");
   const status = document.getElementById("page-status");
-  const tabs = document.getElementById("drop-tabs");
 
   const lastWordAccent = (s) => {
     const parts = s.split(" ");
@@ -413,7 +412,6 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     const lab = visible.find((p) => p.drop !== undefined) || visible[0];
     const pageNo = single ? `${cur} / ${pages.length - 1}` : `${cur} / ${n}`;
     status.innerHTML = `<strong>${lab.label}</strong><br>${pageNo}`;
-    tabs.querySelectorAll(".drop-tab").forEach((t) => t.setAttribute("aria-current", String(t.dataset.drop === String(lab.drop ?? "cover"))));
   }
 
   function turn(sheet) {
@@ -437,16 +435,6 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       }, s * 160);
     }
   }
-
-  tabs.innerHTML =
-    DROPS.map((d, i) => `<button class="drop-tab" type="button" data-drop="${i}">Drop ${d.no} · ${d.name}</button>`).join("") +
-    `<button class="drop-tab soon" type="button" data-drop="${DROPS.length}">Drop ${NEXT_DROP.no} · Coming soon</button>`;
-  tabs.addEventListener("click", (e) => {
-    const t = e.target.closest(".drop-tab");
-    if (!t) return;
-    const i = +t.dataset.drop;
-    go(single ? 1 + i * 2 : i + 1);
-  });
 
   prevBtn.addEventListener("click", () => go(cur - 1));
   nextBtn.addEventListener("click", () => go(cur + 1));
