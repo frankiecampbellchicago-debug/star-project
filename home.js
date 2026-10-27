@@ -253,7 +253,8 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     </div>`;
   }
 
-  const cutPhoto = (p, size) => `<div class="photo cut"><img src="images/${p.img}-cut-${size}.webp" alt="${p.name}" width="${size}" height="${size}" loading="lazy"></div>`;
+  const stock = (p) => (LEFT[p.id] ? `<span class="stock">Only ${LEFT[p.id]} left</span>` : "");
+  const cutPhoto = (p, size) => `<div class="photo cut" data-qv="${p.id}" role="button" tabindex="0" aria-label="Quick view: ${p.name}"><span class="qv-hint">Quick view</span><img src="images/${p.img}-cut-${size}.webp" alt="${p.name}" width="${size}" height="${size}" loading="lazy"></div>`;
   const foot = (l, r) => `<div class="page-foot"><span>${l}</span><span>${r}</span></div>`;
 
   // build the page list in reading order
@@ -279,7 +280,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
             <span class="label">Featured</span>
             <h4>${feat.name}</h4>
             <p class="desc">${feat.desc}</p>
-            <span class="price">${money(feat.price)}</span>
+            <span class="price">${money(feat.price)}</span>${stock(feat)}
             ${buyRow(feat)}
           </div>
         </div>
@@ -293,7 +294,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
             <div>
               <h4>${p.name}</h4>
               <p class="desc">${p.desc}</p>
-              <span class="price">${money(p.price)}</span>
+              <span class="price">${money(p.price)}</span>${stock(p)}
               ${buyRow(p)}
             </div>
           </article>`).join("")}
@@ -301,6 +302,29 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
         ${foot(`Drop ${d.no}`, `Page ${pages.length}`)}
       </div>` });
   });
+  const nd = NEXT_DROP;
+  const teaserLabel = `Drop ${nd.no}: Coming soon`;
+  pages.push({ label: teaserLabel, drop: DROPS.length, html: `<div class="page night teaser">
+      <span class="drop-no">Drop ${nd.no} · ${nd.date}</span>
+      <h3 class="drop-name">${nd.name}</h3>
+      <p class="drop-story">${nd.teaser}</p>
+      <div class="countdown" data-launch="${nd.launch}" aria-label="Time until Drop ${nd.no}">
+        <div><strong data-u="d">00</strong><span>Days</span></div>
+        <div><strong data-u="h">00</strong><span>Hours</span></div>
+        <div><strong data-u="m">00</strong><span>Minutes</span></div>
+        <div><strong data-u="s">00</strong><span>Seconds</span></div>
+      </div>
+      <a class="btn small" href="#signup-section">Get first access</a>
+      ${foot("Star Project", `Page ${pages.length}`)}
+    </div>` });
+  pages.push({ label: teaserLabel, drop: DROPS.length, html: `<div class="page night teaser">
+      <div class="items-head"><h3>Under wraps</h3><span class="drop-no">Revealed at launch</span></div>
+      <div class="mystery">
+        ${nd.silhouettes.map((img, i) => `<div class="mystery-item"><div class="photo cut silhouette"><img src="images/${img}-cut-400.webp" alt="" width="400" height="400" loading="lazy"></div><span>Piece ${String(i + 1).padStart(2, "0")}</span></div>`).join("")}
+      </div>
+      <p class="drop-story mystery-note">Join the list and you'll see the reveal a day before everyone else.</p>
+      ${foot(`Drop ${nd.no}`, `Page ${pages.length}`)}
+    </div>` });
   pages.push({ label: "Back cover", html: `<div class="page cover">
       <div class="cover-star">${STAR_SVG}</div>
       <h3>More soon</h3>
@@ -328,6 +352,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
         <div class="face back">${b ? b.html + '<button class="corner" type="button" data-go-prev aria-label="Previous page"></button>' : ""}</div>
       </div>`).join("");
     sheets = [...book.children];
+    tickCountdown();
     sheets.forEach((s, i) => s.classList.toggle("flipped", i < cur));
     cur = Math.min(cur, maxCur());
     book.classList.add("instant");
@@ -384,7 +409,8 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   }
 
   tabs.innerHTML =
-    DROPS.map((d, i) => `<button class="drop-tab" type="button" data-drop="${i}">Drop ${d.no} · ${d.name}</button>`).join("");
+    DROPS.map((d, i) => `<button class="drop-tab" type="button" data-drop="${i}">Drop ${d.no} · ${d.name}</button>`).join("") +
+    `<button class="drop-tab soon" type="button" data-drop="${DROPS.length}">Drop ${NEXT_DROP.no} · Coming soon</button>`;
   tabs.addEventListener("click", (e) => {
     const t = e.target.closest(".drop-tab");
     if (!t) return;
@@ -398,6 +424,8 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   book.addEventListener("click", (e) => {
     if (e.target.closest("[data-go-next]")) return go(cur + 1);
     if (e.target.closest("[data-go-prev]")) return go(cur - 1);
+    const qv = e.target.closest("[data-qv]");
+    if (qv) return QuickView.open(qv.dataset.qv, qv);
     const btn = e.target.closest("[data-buy], [data-add]");
     if (!btn) return;
     const row = btn.closest(".buy-row");
@@ -407,6 +435,24 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     if (btn.hasAttribute("data-buy")) location.href = "checkout.html";
     else toast(`${p.name}${p.sizes.length > 1 ? ", size " + size : ""} added to your bag.`);
   });
+
+  book.addEventListener("keydown", (e) => {
+    const qv = e.target.closest("[data-qv]");
+    if (qv && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); QuickView.open(qv.dataset.qv, qv); }
+  });
+
+  // live countdown to the next drop
+  function tickCountdown() {
+    book.querySelectorAll(".countdown").forEach((el) => {
+      let ms = Math.max(0, new Date(el.dataset.launch) - Date.now());
+      for (const [u, size] of [["d", 86400000], ["h", 3600000], ["m", 60000], ["s", 1000]]) {
+        const v = Math.floor(ms / size);
+        ms -= v * size;
+        el.querySelector(`[data-u="${u}"]`).textContent = String(v).padStart(2, "0");
+      }
+    });
+  }
+  setInterval(tickCountdown, 1000);
 
   // swipe to turn on touch screens
   let sx = null, sy = null;
@@ -459,4 +505,71 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     note.textContent = "You're on the list. We'll email you before the next drop goes live.";
     form.reset();
   });
+})();
+
+/* ---------- quick view ---------- */
+const QuickView = (() => {
+  const el = document.createElement("div");
+  el.className = "qv";
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-modal", "true");
+  el.setAttribute("aria-labelledby", "qv-name");
+  el.hidden = true;
+  document.body.appendChild(el);
+  let last = null, current = null, size = null;
+
+  function render(p) {
+    const drop = DROPS.find((d) => d.products.some((q) => q.id === p.id));
+    size = p.sizes.includes("M") ? "M" : p.sizes[0];
+    el.innerHTML = `<div class="qv-card">
+      <button class="icon-btn qv-close" type="button" aria-label="Close">${ICON.close}</button>
+      <div class="qv-photo"><img src="images/${p.img}-cut-800.webp" alt="${p.name}" width="800" height="800"></div>
+      <div class="qv-info">
+        <span class="label">Drop ${drop.no} · ${drop.name}</span>
+        <h2 id="qv-name">${p.name}</h2>
+        <div class="qv-price"><span class="price">${money(p.price)}</span>${LEFT[p.id] ? `<span class="stock">Only ${LEFT[p.id]} left</span>` : ""}</div>
+        <p class="qv-desc">${p.desc}</p>
+        <ul class="qv-details">${(DETAILS[p.id] || []).map((d) => `<li>${d}</li>`).join("")}</ul>
+        ${p.sizes.length > 1
+          ? `<div class="qv-sizes" role="radiogroup" aria-label="Size">${p.sizes.map((x) => `<button type="button" role="radio" aria-checked="${x === size}" data-size="${x}">${x}</button>`).join("")}</div>`
+          : `<p class="qv-one">One size</p>`}
+        <div class="qv-actions">
+          <button class="btn" type="button" data-qv-buy>Buy now</button>
+          <button class="btn ghost" type="button" data-qv-add>Add to bag</button>
+        </div>
+        <p class="fine">Free shipping over ${money(FREE_SHIP)} · 30-day returns</p>
+      </div>
+    </div>`;
+  }
+
+  function open(id, from) {
+    current = findProduct(id);
+    if (!current) return;
+    last = from || document.activeElement;
+    render(current);
+    el.hidden = false;
+    requestAnimationFrame(() => el.classList.add("open"));
+    el.querySelector(".qv-close").focus();
+  }
+  function close() {
+    el.classList.remove("open");
+    setTimeout(() => { el.hidden = true; }, 350);
+    last?.focus?.();
+  }
+  el.addEventListener("click", (e) => {
+    if (e.target === el || e.target.closest(".qv-close")) return close();
+    const b = e.target.closest("[data-size]");
+    if (b) {
+      size = b.dataset.size;
+      el.querySelectorAll("[data-size]").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+    }
+    if (e.target.closest("[data-qv-buy]")) { Cart.add(current.id, size); location.href = "checkout.html"; }
+    if (e.target.closest("[data-qv-add]")) {
+      Cart.add(current.id, size);
+      close();
+      toast(`${current.name}${current.sizes.length > 1 ? ", size " + size : ""} added to your bag.`);
+    }
+  });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && !el.hidden) close(); });
+  return { open, close };
 })();

@@ -52,3 +52,37 @@ const DROPS = [
 
 const PRODUCTS = DROPS.flatMap((d) => d.products.map((p) => ({ ...p, drop: d.name })));
 const findProduct = (id) => PRODUCTS.find((p) => p.id === id);
+
+// Extra detail for the quick view (placeholder copy: swap in the real specs).
+const DETAILS = {
+  "orbit-hoodie": ["450 gsm brushed cotton fleece", "Relaxed fit, dropped shoulder", "Double-layer hood, kangaroo pocket"],
+  "north-crew": ["400 gsm loopback cotton", "Relaxed fit", "Ribbed cuffs and hem"],
+  "halo-tee": ["220 gsm combed cotton jersey", "Regular fit", "Slim ribbed crew neck"],
+  "night-beanie": ["Merino wool blend", "Chunky rib knit", "Deep fold-over cuff"],
+  "comet-puffer": ["Water-resistant recycled shell", "Box-quilted synthetic down", "High funnel neck, two-way zip"],
+  "drift-vest": ["Lightweight diamond quilting", "Layers over a hoodie", "Snap front, side pockets"],
+  "halo-vest": ["Channel-quilted down fill", "Regular fit", "Two-way zip, stand collar"],
+  "run-short": ["Quick-dry woven nylon", "5 inch inseam", "Soft elastic waistband"],
+  "orbit-hoodie-earth": ["450 gsm brushed cotton fleece", "Garment-dyed earth brown", "Relaxed fit, double-layer hood"],
+  "orbit-hoodie-sea": ["450 gsm brushed cotton fleece", "Deep sea blue", "Relaxed fit, double-layer hood"],
+  "transit-sweatpant": ["400 gsm cotton fleece", "Tapered leg, drawcord waist", "Deep side pockets"],
+  "carry-sling": ["Water-resistant nylon", "Adjustable crossbody strap", "Quick-release buckle"],
+};
+// Pieces running low (placeholder numbers).
+const LEFT = { "comet-puffer": 6, "night-beanie": 9, "orbit-hoodie-earth": 4 };
+
+// The next release, teased at the back of the catalogue.
+const NEXT_DROP = {
+  no: "04", name: "Supernova", date: "Spring 2027",
+  launch: "2027-03-14T17:00:00Z",
+  teaser: "Something stellar is on the way. A brighter palette, a heavier cut, and our first outerwear in metallic thread.",
+  silhouettes: ["hoodie", "puffer", "crewneck"],
+};
+
+// Social accounts. Paste each full profile link; leave "" to hide that icon.
+const SOCIALS = {
+  instagram: "",
+  tiktok: "",
+  x: "",
+  youtube: "",
+};

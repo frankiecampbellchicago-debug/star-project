@@ -420,3 +420,18 @@ function toast(msg) {
   document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
   document.getElementById("year") && (document.getElementById("year").textContent = new Date().getFullYear());
 })();
+
+/* ---------- social links (set in products.js) ---------- */
+(() => {
+  const ICONS = {
+    instagram: ["Instagram", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>'],
+    tiktok: ["TikTok", '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 3c.4 2.2 1.9 3.8 4.1 4v3.1a7.6 7.6 0 0 1-4.1-1.3v6.4a6 6 0 1 1-6-6c.3 0 .6 0 .9.1v3.2a2.9 2.9 0 1 0 2 2.7V3h3.1z"/></svg>'],
+    x: ["X", '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8L17.8 3zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5z"/></svg>'],
+    youtube: ["YouTube", '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15.1V8.9L15.5 12l-5.8 3.1z"/></svg>'],
+  };
+  const links = Object.entries(typeof SOCIALS === "object" ? SOCIALS : {}).filter(([k, url]) => url && ICONS[k]);
+  document.querySelectorAll("[data-socials]").forEach((box) => {
+    if (!links.length) { box.hidden = true; return; }
+    box.innerHTML = links.map(([k, url]) => `<a href="${url}" target="_blank" rel="noopener" aria-label="Star Project on ${ICONS[k][0]}">${ICONS[k][1]}</a>`).join("");
+  });
+})();
