@@ -198,7 +198,7 @@ const SKY = { shine: 1 };
     m.x = e.clientX; m.y = e.clientY; m.on = true;
     const el = e.target instanceof Element ? e.target : null;
     hover = !!el?.closest("a, button, select, input, label, [role=button]");
-    dark = !!el?.closest(".paper, .face, .drawer, .panel, .toast") && !el?.closest(".cover");
+    dark = !!el?.closest(".paper, .drawer, .panel, .toast") && !el?.closest(".cover, .night");
   });
   document.addEventListener("pointerleave", () => { m.on = false; });
   addEventListener("pointerdown", (e) => {

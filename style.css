@@ -435,3 +435,69 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
   .feature-info { align-self: start; padding-bottom: 0; }
   .feature-info h4 { font-size: 24px; }
 }
+
+/* ---------- night catalogue ---------- */
+.book { filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.7)); }
+.face { background: #0b0a10; color: var(--star); }
+.face.front::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent); }
+.face.back::after { right: 0; background: linear-gradient(-90deg, rgba(0, 0, 0, 0.55), transparent); }
+.book::after { /* a faint gold line down the spine */
+  content: ""; position: absolute; left: 50%; top: 4%; bottom: 4%; width: 1px; z-index: 40; pointer-events: none;
+  background: linear-gradient(transparent, rgba(207, 174, 114, 0.35), transparent);
+}
+@media (max-width: 860px) { .book::after { display: none; } }
+
+.page.night {
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(207, 174, 114, 0.07), transparent 70%),
+    linear-gradient(180deg, #13121a 0%, #0b0a10 55%, #08070c 100%);
+  color: var(--star);
+}
+.page.night::before { /* scattered pin-prick stars */
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 8% 12%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 23% 64%, #fff 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 37% 28%, #f3e5c4 50%, transparent 51%), radial-gradient(1px 1px at 52% 86%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 66% 9%, #fff 50%, transparent 51%), radial-gradient(1.4px 1.4px at 79% 47%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 91% 73%, #d9e2ff 50%, transparent 51%), radial-gradient(1px 1px at 15% 92%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 46% 51%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 88% 22%, #f3e5c4 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 5%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 72% 95%, #fff 50%, transparent 51%);
+}
+.page.night > * { position: relative; }
+.page.night .page-foot { color: var(--muted); border-color: var(--line-dark); }
+.night .drop-no { color: var(--gold); letter-spacing: 0.28em; font-family: var(--sans); font-size: 10px; font-weight: 500; }
+.night .drop-name {
+  font-family: var(--script); font-weight: 400; font-size: clamp(56px, 5.6vw, 80px); line-height: 1.15; margin: 4px 0 6px; padding-right: 0.2em;
+  background: linear-gradient(180deg, #fffdf7 20%, #f1e4c8 60%, #cfae72 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.night .drop-story, .night .desc { color: var(--muted); }
+.night h3, .night h4, .night .price { color: var(--star); }
+.night .label { color: var(--gold); }
+.night .items-head h3 { font-size: 30px; }
+.night .item { border-color: var(--line-dark); }
+
+/* products float under a soft gold spotlight */
+.photo.cut { background: radial-gradient(ellipse 58% 52% at 50% 52%, rgba(207, 174, 114, 0.22), rgba(207, 174, 114, 0.06) 45%, transparent 72%); overflow: visible; }
+.photo.cut::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 5%; height: 7%; border-radius: 50%; background: radial-gradient(ellipse, rgba(0, 0, 0, 0.75), transparent 70%); }
+.photo.cut img { position: relative; z-index: 1; mix-blend-mode: normal; object-fit: contain; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55)); transition: transform 0.8s var(--ease), filter 0.8s var(--ease); }
+.photo.cut:hover img { transform: translateY(-6px) scale(1.04); filter: drop-shadow(0 22px 22px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 18px rgba(207, 174, 114, 0.18)); }
+.feature .photo.cut img { object-fit: contain; padding: 6%; }
+
+/* controls on the dark pages */
+.night .btn { background: var(--gold); border-color: var(--gold); color: var(--space); }
+.night .btn:hover { background: transparent; color: var(--gold); }
+.night .btn.ghost, .page .night .btn.ghost.small, .page.night .btn.ghost.small { background: transparent; color: var(--star); border-color: rgba(244, 239, 230, 0.28); }
+.night .btn.ghost:hover, .page.night .btn.ghost.small:hover { color: var(--gold); border-color: var(--gold); }
+.night .size {
+  color: var(--star); border-color: rgba(244, 239, 230, 0.28);
+  background-image: linear-gradient(45deg, transparent 50%, var(--star) 50%), linear-gradient(135deg, var(--star) 50%, transparent 50%);
+}
+.night .size option { background: #0b0a10; color: var(--star); }
+.face.front .corner { background: linear-gradient(135deg, transparent 50%, rgba(207, 174, 114, 0.16) 50%); }
+.face.back .corner { background: linear-gradient(-135deg, transparent 50%, rgba(207, 174, 114, 0.16) 50%); }
+@media (max-width: 860px) { .night .drop-name { font-size: 54px; } }
+.feature { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; }
+.feature .photo.cut img { padding: 0; transform: scale(1.18); }
+.feature .photo.cut:hover img { transform: translateY(-6px) scale(1.22); }
+@media (max-width: 860px) { .feature { grid-template-columns: 1fr; } .feature .photo.cut img { transform: scale(1.05); } }

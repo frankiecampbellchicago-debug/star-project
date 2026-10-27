@@ -1,9 +1,9 @@
 // The catalogue. Each drop is one spread of the book: its first product is the
 // featured piece on the left page, the rest are listed on the right page.
 // Photos are placeholders: replace images/<img>-800.webp and -400.webp with real shots.
+// The catalogue uses cut-out versions (<img>-cut-800.webp / -cut-400.webp) with a transparent background.
 const APPAREL = ["XS", "S", "M", "L", "XL"];
 const ONE = ["One size"];
-const SHOES = ["7", "8", "9", "10", "11", "12"];
 
 const DROPS = [
   {
@@ -28,10 +28,10 @@ const DROPS = [
         desc: "Box-quilted, water-resistant shell with a high funnel neck." },
       { id: "drift-vest", name: "Drift Vest", price: 140, img: "light-puffer", sizes: APPAREL,
         desc: "Diamond-quilted, light enough to layer." },
-      { id: "meridian-half-zip", name: "Meridian Half Zip", price: 100, img: "half-zip", sizes: APPAREL,
-        desc: "Colour-blocked fleece with a stand collar." },
-      { id: "court-high", name: "Court High", price: 180, img: "high-tops", sizes: SHOES,
-        desc: "Leather high-top on a natural gum sole." },
+      { id: "halo-vest", name: "Halo Puffer Vest", price: 150, img: "puffer-2", sizes: APPAREL,
+        desc: "Channel-quilted down vest with a two-way zip." },
+      { id: "run-short", name: "Night Run Short", price: 45, img: "shorts", sizes: APPAREL,
+        desc: "Quick-dry woven short with a soft waistband." },
     ],
   },
   {

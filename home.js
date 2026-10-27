@@ -253,6 +253,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     </div>`;
   }
 
+  const cutPhoto = (p, size) => `<div class="photo cut"><img src="images/${p.img}-cut-${size}.webp" alt="${p.name}" width="${size}" height="${size}" loading="lazy"></div>`;
   const foot = (l, r) => `<div class="page-foot"><span>${l}</span><span>${r}</span></div>`;
 
   // build the page list in reading order
@@ -268,12 +269,12 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   DROPS.forEach((d, i) => {
     const [feat, ...rest] = d.products;
     const label = `Drop ${d.no}: ${d.name}`;
-    pages.push({ label, drop: i, html: `<div class="page paper">
+    pages.push({ label, drop: i, html: `<div class="page night">
         <span class="drop-no">Drop ${d.no} · ${d.date}</span>
-        <h3 class="drop-name">${lastWordAccent(d.name)}</h3>
+        <h3 class="drop-name">${d.name}</h3>
         <p class="drop-story">${d.story}</p>
         <div class="feature">
-          ${photo(feat, 800)}
+          ${cutPhoto(feat, 800)}
           <div class="feature-info">
             <span class="label">Featured</span>
             <h4>${feat.name}</h4>
@@ -284,11 +285,11 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
         </div>
         ${foot("Star Project", `Page ${pages.length}`)}
       </div>` });
-    pages.push({ label, drop: i, html: `<div class="page paper">
+    pages.push({ label, drop: i, html: `<div class="page night">
         <div class="items-head"><h3>In this drop</h3><span class="drop-no">${d.products.length} pieces</span></div>
         <div class="items">
           ${rest.map((p) => `<article class="item">
-            ${photo(p)}
+            ${cutPhoto(p, 400)}
             <div>
               <h4>${p.name}</h4>
               <p class="desc">${p.desc}</p>
