@@ -88,21 +88,21 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     ctx.globalCompositeOperation = "lighter";
 
     // broad golden dust tail, fanning out and curving away behind the comet
-    stream(tail, t, time, 120, (k) => 30 * (1 - k) ** 1.7, (x, y, k) => stamp(SPR.gold, x, y, 18 + 80 * k ** 1.6, 0.075 * k ** 1.1));
+    stream(tail, t, time, 120, (k) => 30 * (1 - k) ** 1.7, (x, y, k) => stamp(SPR.gold, x, y, 18 + 80 * k ** 1.6, 0.1 * k ** 1.1));
     // faint blue ion tail, straighter and to the other side
-    stream(tail, t, time, 110, (k) => -12 * (1 - k) ** 1.4, (x, y, k) => stamp(SPR.blue, x, y, 6 + 26 * k ** 2, 0.07 * k ** 1.6));
+    stream(tail, t, time, 110, (k) => -12 * (1 - k) ** 1.4, (x, y, k) => stamp(SPR.blue, x, y, 6 + 26 * k ** 2, 0.09 * k ** 1.6));
     // the bright body of the tail
-    stream(tail, t, time, 200, () => 0, (x, y, k) => stamp(SPR.cream, x, y, 6 + 30 * k ** 2, 0.2 * k ** 1.1));
+    stream(tail, t, time, 200, () => 0, (x, y, k) => stamp(SPR.cream, x, y, 6 + 30 * k ** 2, 0.28 * k ** 1.05));
     // a fine white-hot core line
-    stream(Math.max(tail, t - TRAIL * 0.55), t, time, 160, () => 0, (x, y, k) => stamp(SPR.white, x, y, 2 + 9 * k ** 3, 0.55 * k ** 2));
+    stream(Math.max(tail, t - TRAIL * 0.55), t, time, 160, () => 0, (x, y, k) => stamp(SPR.white, x, y, 2 + 9 * k ** 3, 0.7 * k ** 1.7));
 
     // once the comet has gone, a fine glowing line stays behind for the name to sit on
     const after = clamp((60 - head[0]) / 260);
     if (after > 0) {
       stream(tail, t, time, 180, () => 0, (x, y, k) => {
         const env = Math.sin(Math.PI * k) ** 0.7;
-        stamp(SPR.cream, x, y, 12, 0.07 * env * after);
-        stamp(SPR.white, x, y, 3.2, 0.42 * env * after);
+        stamp(SPR.cream, x, y, 14, 0.11 * env * after);
+        stamp(SPR.white, x, y, 3.6, 0.6 * env * after);
       });
     }
 
