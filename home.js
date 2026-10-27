@@ -255,6 +255,27 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
 
   const stock = (p) => (LEFT[p.id] ? `<span class="stock">Only ${LEFT[p.id]} left</span>` : "");
   const cutPhoto = (p, size) => `<div class="photo cut" data-qv="${p.id}" role="button" tabindex="0" aria-label="Quick view: ${p.name}"><span class="qv-hint">Quick view</span><img src="images/${p.img}-cut-${size}.webp" alt="${p.name}" width="${size}" height="${size}" loading="lazy"></div>`;
+  const runHead = (right) => `<div class="run-head"><span>Star Project · Catalogue Vol. 01</span><span>${right}</span></div>`;
+  const meta = (p) => {
+    const [cname, hex] = COLORWAYS[p.id] || ["", ""];
+    const fabric = (DETAILS[p.id] || [])[0] || "";
+    return `<div class="meta-line">${cname ? `<span class="swatch" style="--c:${hex}"></span>${cname}` : ""}${fabric ? `<span class="dot-sep"></span><span class="fabric">${fabric}</span>` : ""}</div>`;
+  };
+  const code = (d, i) => `<span class="style-code">SP-${d.no}-${String(i + 1).padStart(2, "0")}</span>`;
+
+  // a small constellation for each drop, the same every visit (seeded by the drop id)
+  function constellation(seed) {
+    let x = [...seed].reduce((a, ch) => a * 31 + ch.charCodeAt(0), 7) >>> 0;
+    const rnd = () => ((x = (x * 1664525 + 1013904223) >>> 0) / 4294967296);
+    const pts = Array.from({ length: 7 }, (_, i) => [12 + i * 30 + rnd() * 14, 18 + rnd() * 64]);
+    const path = pts.map((q, i) => `${i ? "L" : "M"}${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join(" ");
+    const branch = `M${pts[2][0].toFixed(1)} ${pts[2][1].toFixed(1)} L${(pts[2][0] + 8).toFixed(1)} ${(pts[2][1] > 50 ? pts[2][1] - 30 : pts[2][1] + 30).toFixed(1)}`;
+    return `<svg class="constellation" viewBox="0 0 220 100" aria-hidden="true">
+      <path class="c-line" d="${path}" pathLength="1"/><path class="c-line" d="${branch}" pathLength="1"/>
+      ${pts.map((q, i) => `<circle class="c-star" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${i % 3 ? 1.4 : 2.2}" style="--d:${(i * 0.35).toFixed(2)}s"/>`).join("")}
+    </svg>`;
+  }
+
   const foot = (l, r) => `<div class="page-foot"><span>${l}</span><span>${r}</span></div>`;
 
   // build the page list in reading order
@@ -271,15 +292,19 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     const [feat, ...rest] = d.products;
     const label = `Drop ${d.no}: ${d.name}`;
     pages.push({ label, drop: i, html: `<div class="page night">
+        ${runHead(`Drop ${d.no}`)}
+        ${constellation(d.id)}
         <span class="drop-no">Drop ${d.no} · ${d.date}</span>
         <h3 class="drop-name">${d.name}</h3>
         <p class="drop-story">${d.story}</p>
+        <div class="drop-stats"><div><strong>${d.products.length}</strong><span>Pieces</span></div><div><strong>${RUN_SIZE[d.id] || "—"}</strong><span>Made of each</span></div><div><strong>${d.date.split(" ")[1]}</strong><span>${d.date.split(" ")[0]}</span></div></div>
         <div class="feature">
           ${cutPhoto(feat, 800)}
           <div class="feature-info">
-            <span class="label">Featured</span>
+            <span class="label">Featured ${code(d, 0)}</span>
             <h4>${feat.name}</h4>
             <p class="desc">${feat.desc}</p>
+            ${meta(feat)}
             <span class="price">${money(feat.price)}</span>${stock(feat)}
             ${buyRow(feat)}
           </div>
@@ -287,13 +312,14 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
         ${foot("Star Project", `Page ${pages.length}`)}
       </div>` });
     pages.push({ label, drop: i, html: `<div class="page night">
+        ${runHead(d.name)}
         <div class="items-head"><h3>In this drop</h3><span class="drop-no">${d.products.length} pieces</span></div>
         <div class="items">
-          ${rest.map((p) => `<article class="item">
+          ${rest.map((p, j) => `<article class="item">
             ${cutPhoto(p, 400)}
             <div>
-              <h4>${p.name}</h4>
-              <p class="desc">${p.desc}</p>
+              <div class="item-top"><h4>${p.name}</h4>${code(d, j + 1)}</div>
+              ${meta(p)}
               <span class="price">${money(p.price)}</span>${stock(p)}
               ${buyRow(p)}
             </div>
@@ -305,6 +331,8 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   const nd = NEXT_DROP;
   const teaserLabel = `Drop ${nd.no}: Coming soon`;
   pages.push({ label: teaserLabel, drop: DROPS.length, html: `<div class="page night teaser">
+      ${runHead(`Drop ${nd.no}`)}
+      ${constellation("supernova")}
       <span class="drop-no">Drop ${nd.no} · ${nd.date}</span>
       <h3 class="drop-name">${nd.name}</h3>
       <p class="drop-story">${nd.teaser}</p>
@@ -318,6 +346,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       ${foot("Star Project", `Page ${pages.length}`)}
     </div>` });
   pages.push({ label: teaserLabel, drop: DROPS.length, html: `<div class="page night teaser">
+      ${runHead("Coming soon")}
       <div class="items-head"><h3>Under wraps</h3><span class="drop-no">Revealed at launch</span></div>
       <div class="mystery">
         ${nd.silhouettes.map((img, i) => `<div class="mystery-item"><div class="photo cut silhouette"><img src="images/${img}-cut-400.webp" alt="" width="400" height="400" loading="lazy"></div><span>Piece ${String(i + 1).padStart(2, "0")}</span></div>`).join("")}
@@ -372,6 +401,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       const front = s.querySelector(".front"), back = s.querySelector(".back");
       const showFront = i === cur, showBack = !single && i === cur - 1;
       front.inert = !showFront; back.inert = !showBack;
+      front.classList.toggle("seen", showFront); back.classList.toggle("seen", showBack);
       front.setAttribute("aria-hidden", !showFront); back.setAttribute("aria-hidden", !showBack);
     });
     book.classList.toggle("at-start", !single && cur === 0);

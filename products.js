@@ -86,3 +86,13 @@ const SOCIALS = {
   x: "",
   youtube: "",
 };
+
+// Colourway shown as a swatch on each catalogue entry.
+const COLORWAYS = {
+  "orbit-hoodie": ["Forest", "#2f5a41"], "north-crew": ["Forest", "#2f5a41"], "halo-tee": ["Forest", "#1f4a33"],
+  "night-beanie": ["Moss", "#4d6b5b"], "comet-puffer": ["Forest", "#3d7a52"], "drift-vest": ["Sage", "#5c8a66"],
+  "halo-vest": ["Sage", "#5c8a66"], "run-short": ["Forest", "#2f5a41"], "orbit-hoodie-earth": ["Earth", "#5b4632"],
+  "orbit-hoodie-sea": ["Deep Sea", "#2c4a52"], "transit-sweatpant": ["Forest", "#2f6a45"], "carry-sling": ["Forest", "#365e44"],
+};
+// How many of each piece are made per drop (placeholder numbers).
+const RUN_SIZE = { "first-light": 300, "night-shift": 200, "orbit": 250 };
