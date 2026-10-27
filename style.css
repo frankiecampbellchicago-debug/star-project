@@ -708,3 +708,6 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
   .items-head { margin-bottom: 6px; }
   .items-head h3 { font-size: 26px !important; }
 }
+
+/* anything marked hidden stays out of the way, whatever its display style */
+[hidden] { display: none !important; }
