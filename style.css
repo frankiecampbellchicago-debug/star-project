@@ -712,3 +712,4 @@ h2 { font-size: clamp(38px, 5.4vw, 64px); }
 /* anything marked hidden stays out of the way, whatever its display style */
 [hidden] { display: none !important; }
 .catalogue .lede { margin-bottom: 44px; }
+.catalogue h2 { margin-bottom: 48px; }
