@@ -30,44 +30,50 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
   function path() {
     const r = title.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     const y = (r.bottom - sr.top + 28) / h;
-    P0 = [1.1, y - 0.27]; P1 = [0.56, y + 0.035]; P2 = [-0.14, y - 0.015];
+    P0 = [1.1, y - 0.27]; P1 = [0.56, y + 0.035]; P2 = [-Math.max(0.14, 200 / w), y - 0.015];
   }
   function pt(u) {
     const a = (1 - u) ** 2, b = 2 * u * (1 - u), d = u * u;
     return [(a * P0[0] + b * P1[0] + d * P2[0]) * w, (a * P0[1] + b * P1[1] + d * P2[1]) * h];
   }
 
-  const TRAIL = 0.72;
+  const TRAIL = 0.7;
   let lastHead = null;
   const glitter = [];
 
-  // a tapered ribbon from tail to head; `spread` fans it sideways towards the tail
-  function ribbon(tail, t, maxW, stops, spread = 0, blur = 0, blurColor = "transparent") {
-    const N = 100, pts = [];
-    for (let i = 0; i <= N; i++) pts.push(pt(tail + ((t - tail) * i) / N));
-    const L = [], R = [];
-    for (let i = 0; i <= N; i++) {
-      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(N, i + 1)];
-      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
-      const nx = -dy / len, ny = dx / len, k = i / N;
-      const off = spread * (1 - k) ** 1.6;
-      const cx = pts[i][0] + nx * off, cy = pts[i][1] + ny * off;
-      const half = (maxW / 2) * k ** 1.25;
-      L.push([cx + nx * half, cy + ny * half]);
-      R.push([cx - nx * half, cy - ny * half]);
+  // soft round light sprites; the whole comet is painted by stamping these
+  function softSprite(rgb) {
+    const S = 128, o = document.createElement("canvas");
+    o.width = o.height = S;
+    const g = o.getContext("2d"), m = S / 2;
+    const r = g.createRadialGradient(m, m, 0, m, m, m);
+    r.addColorStop(0, `rgba(${rgb},1)`);
+    r.addColorStop(0.2, `rgba(${rgb},0.75)`);
+    r.addColorStop(0.45, `rgba(${rgb},0.28)`);
+    r.addColorStop(0.7, `rgba(${rgb},0.08)`);
+    r.addColorStop(1, `rgba(${rgb},0)`);
+    g.fillStyle = r; g.fillRect(0, 0, S, S);
+    return o;
+  }
+  const SPR = { white: softSprite("255,255,253"), cream: softSprite("255,240,214"), gold: softSprite("214,178,112"), blue: softSprite("190,208,255") };
+  const stamp = (img, x, y, size, alpha) => {
+    if (alpha <= 0.002 || size <= 0.2) return;
+    ctx.globalAlpha = Math.min(1, alpha);
+    ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
+  };
+
+  // walk the trail from tail (k = 0) to head (k = 1), with a sideways offset
+  function stream(tail, t, time, n, side, fn) {
+    let prev = pt(tail);
+    for (let i = 1; i <= n; i++) {
+      const k = i / n;
+      const q = pt(tail + (t - tail) * k);
+      const dx = q[0] - prev[0], dy = q[1] - prev[1], len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len;
+      const off = side(k) + Math.sin(k * 14 - time / 500) * 1.6 * (1 - k);
+      fn(q[0] + nx * off, q[1] + ny * off, k);
+      prev = q;
     }
-    const g = ctx.createLinearGradient(pts[0][0], pts[0][1], pts[N][0], pts[N][1]);
-    stops.forEach(([o, col]) => g.addColorStop(o, col));
-    ctx.save();
-    ctx.fillStyle = g;
-    ctx.shadowBlur = blur; ctx.shadowColor = blurColor;
-    ctx.beginPath();
-    ctx.moveTo(L[0][0], L[0][1]);
-    for (const q of L) ctx.lineTo(q[0], q[1]);
-    for (let i = N; i >= 0; i--) ctx.lineTo(R[i][0], R[i][1]);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
   }
 
   function draw(time, p) {
@@ -81,20 +87,48 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
     const tail = Math.max(0, t - TRAIL);
     ctx.globalCompositeOperation = "lighter";
 
-    // wide soft bloom, fanned dust strands, then the bright core
-    ribbon(tail, t, 34, [[0, "rgba(207,174,114,0)"], [0.6, "rgba(207,174,114,0.05)"], [1, "rgba(240,222,186,0.22)"]], 0, 30, "rgba(207,174,114,0.35)");
-    ribbon(tail, t, 2.2, [[0, "rgba(207,174,114,0)"], [0.7, "rgba(226,204,160,0.28)"], [1, "rgba(250,240,220,0.6)"]], 22);
-    ribbon(tail, t, 1.4, [[0, "rgba(207,174,114,0)"], [0.7, "rgba(226,204,160,0.22)"], [1, "rgba(250,240,220,0.5)"]], -14);
-    ribbon(tail, t, 1, [[0, "rgba(200,214,255,0)"], [0.75, "rgba(210,222,255,0.2)"], [1, "rgba(235,240,255,0.45)"]], 9);
-    ribbon(tail, t, 4.6, [[0, "rgba(207,174,114,0)"], [0.4, "rgba(220,196,150,0.3)"], [0.85, "rgba(248,238,216,0.85)"], [1, "rgba(255,253,248,1)"]], 0, 10, "rgba(255,238,205,0.7)");
+    // broad golden dust tail, fanning out and curving away behind the comet
+    stream(tail, t, time, 120, (k) => 30 * (1 - k) ** 1.7, (x, y, k) => stamp(SPR.gold, x, y, 18 + 80 * k ** 1.6, 0.075 * k ** 1.1));
+    // faint blue ion tail, straighter and to the other side
+    stream(tail, t, time, 110, (k) => -12 * (1 - k) ** 1.4, (x, y, k) => stamp(SPR.blue, x, y, 6 + 26 * k ** 2, 0.07 * k ** 1.6));
+    // the bright body of the tail
+    stream(tail, t, time, 200, () => 0, (x, y, k) => stamp(SPR.cream, x, y, 6 + 30 * k ** 2, 0.2 * k ** 1.1));
+    // a fine white-hot core line
+    stream(Math.max(tail, t - TRAIL * 0.55), t, time, 160, () => 0, (x, y, k) => stamp(SPR.white, x, y, 2 + 9 * k ** 3, 0.55 * k ** 2));
 
-    // sparkles hanging in the trail
+    // once the comet has gone, a fine glowing line stays behind for the name to sit on
+    const after = clamp((60 - head[0]) / 260);
+    if (after > 0) {
+      stream(tail, t, time, 180, () => 0, (x, y, k) => {
+        const env = Math.sin(Math.PI * k) ** 0.7;
+        stamp(SPR.cream, x, y, 12, 0.07 * env * after);
+        stamp(SPR.white, x, y, 3.2, 0.42 * env * after);
+      });
+    }
+
+    // sparkles caught in the tail
     for (const d of dust) {
       const q = pt(tail + (t - tail) * d.u);
       const a = d.u ** 1.4 * (0.25 + 0.75 * Math.sin(time / 420 + d.ph) ** 4);
-      ctx.fillStyle = `rgba(255,246,228,${a})`;
-      ctx.beginPath(); ctx.arc(q[0], q[1] + d.off * (1 - d.u) * 0.8, d.r, 0, Math.PI * 2); ctx.fill();
+      stamp(SPR.white, q[0], q[1] + d.off * (1 - d.u) * 0.9, d.r * 5, a);
     }
+
+    // the head: wide halo, a teardrop coma swept back along the path, a blazing core
+    if (head[0] > -120) {
+      const flick = 1 + Math.sin(time / 130) * 0.05 + Math.sin(time / 43) * 0.03;
+      stamp(SPR.gold, head[0], head[1], 220 * flick, 0.32);
+      stamp(SPR.cream, head[0], head[1], 90 * flick, 0.55);
+      ctx.save();
+      ctx.translate(head[0], head[1]);
+      ctx.rotate(ang);
+      ctx.translate(-14, 0);
+      ctx.scale(2.2, 1);
+      stamp(SPR.cream, 0, 0, 46 * flick, 0.9);
+      ctx.restore();
+      stamp(SPR.white, head[0], head[1], 30 * flick, 1);
+      stamp(SPR.white, head[0], head[1], 12, 1);
+    }
+    ctx.globalAlpha = 1;
 
     // glitter that drifts off the trail and slowly falls
     if (!REDUCED && glitter.length < 140 && Math.random() < 0.8) {
@@ -107,8 +141,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       g.x += g.vx; g.y += g.vy; g.life -= g.decay;
       if (g.life <= 0) { glitter.splice(i, 1); continue; }
       const tw = 0.5 + 0.5 * Math.sin(time / 120 + g.ph);
-      ctx.fillStyle = `rgba(246,228,190,${g.life * tw * 0.9})`;
-      ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2); ctx.fill();
+      stamp(SPR.cream, g.x, g.y, g.r * 7, g.life * tw * 0.8);
     }
 
     // the head: a teardrop coma pointing back along the trail, with a white-hot core
@@ -151,11 +184,11 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       const s = sparks[i];
       s.x += s.vx; s.y += s.vy; s.vx *= 0.96; s.vy *= 0.96; s.life -= s.decay;
       if (s.life <= 0) { sparks.splice(i, 1); continue; }
-      ctx.fillStyle = `rgba(255,240,210,${s.life * 0.8})`;
-      ctx.beginPath(); ctx.arc(s.x, s.y, 0.9 * s.life + 0.2, 0, Math.PI * 2); ctx.fill();
+      stamp(SPR.white, s.x, s.y, 6 * s.life + 1, s.life * 0.8);
     }
     // once the comet has flown off the left edge, let the trail melt away there
     // so what stays behind is a soft arc under the name
+    ctx.globalAlpha = 1;
     const gone = clamp((40 - head[0]) / 160);
     if (gone > 0) {
       ctx.globalCompositeOperation = "destination-out";
@@ -165,6 +198,7 @@ const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 
       ctx.fillStyle = fade;
       ctx.fillRect(0, 0, w * 0.32, h);
     }
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
 
     // the name fades in behind the comet
